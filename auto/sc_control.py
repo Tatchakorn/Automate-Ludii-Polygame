@@ -19,7 +19,7 @@ LUDII_UI_POS = (1647, 15)
 TERMINAL_UI_POS = (636, 370)
 MBXTERM_UI_POS = (500, 23)
 
-# MobaXterm log file
+# MobaXterm log file path
 MOBAX_LOG_PATH = r'fake.log'
 
 # ludii output text
@@ -28,7 +28,7 @@ BEGIN_LINE_POS = (1600, 493)
 old_result = ''
 
 # ---- IMPORTANT ----
-START_AUTO_AT_MV = 10
+START_AUTO_AT_MV = 10    # Start to automate after n moves
 current_mv = 0
 
 
@@ -45,6 +45,7 @@ def wait_mobax():       # <--- State (1)
     '''
     Check every 1.5 seconds if the file is not empty
     '''
+    global old_result
     while True:
         f_size = Path(MOBAX_LOG_PATH).stat().st_size
         if f_size > 0: break 
@@ -54,7 +55,8 @@ def wait_mobax():       # <--- State (1)
         pattern = re.compile(r'last action: [a-z]\d+')
     with open(MOBAX_LOG_PATH, 'r+') as f:
         result = pattern.findall(f.read())[0]
-        f.truncate(0)
+        old_result = result
+        f.truncate(0)  # f_size = 0 byte
         print(f'[out]: {result}')
         pyperclip.copy(result)
 
@@ -72,15 +74,14 @@ def input_ludii():      # <--- State (2)
 
 def wait_ludii():       # <--- State (3)
     global current_mv
-    global old_result
     if START_AUTO_AT_MV == current_mv:
-        while True:     # keep copy until the new value entered
+        while True:     # keep copy until the new value is entered
             pyautogui.moveTo(*BEGIN_LINE_POS) # beginning of the line
             pyautogui.mouseDown()
             pyautogui.drag(MOVE_TEXT_LENGTH,  0, duration=1, button='left')
             pyautogui.hotkey('ctrl', 'c')
-            pattern = re.compile('[A-Z]\d+/0\)$') # D1/0)
-            result = pattern.findall(pyperclip.paste())[0][:-3].lower()
+            pattern = re.compile('[A-Z]\d+/0\)$')                       # eg. "D1/0)"
+            result = pattern.findall(pyperclip.paste())[0][:-3].lower() # eg. "d1"
             if result != old_result: 
                 print(f'[in]: {result}')
                 pyperclip.copy(result)
@@ -107,6 +108,7 @@ def test():
     # wait_mobax()
     # input_mobax()
     # wait_ludii()
+
 
 def check_mouse_position():
     while True:
