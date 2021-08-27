@@ -14,6 +14,7 @@ import pyperclip
 
 pyautogui.PAUSE = 0.3
 
+COORDINATE_TRANLATATION = False
 # UI Positions (x, y)
 LUDII_UI_POS = (1647, 15)
 TERMINAL_UI_POS = (636, 370)
@@ -33,12 +34,9 @@ current_mv = 0
 
 
 def goto_(app: str):
-    if app == 'ludii':
-        pyautogui.click(*LUDII_UI_POS)
-    elif app == 'terminal':
-        pyautogui.click(*TERMINAL_UI_POS)
-    elif app == 'mobax':
-        pyautogui.click(*MBXTERM_UI_POS)
+    if app == 'ludii': pyautogui.click(*LUDII_UI_POS)
+    elif app == 'terminal': pyautogui.click(*TERMINAL_UI_POS)
+    elif app == 'mobax': pyautogui.click(*MBXTERM_UI_POS)
 
 
 def wait_mobax():       # <--- State (1)
@@ -116,6 +114,10 @@ def check_mouse_position():
         print(ms_pos)
         if ms_pos.x == 0: break
 
+
+def set_translation(traslate: bool):
+    global COORDINATE_TRANLATATION
+    COORDINATE_TRANLATATION = traslate
 
 if __name__ == '__main__':
     check_mouse_position()
